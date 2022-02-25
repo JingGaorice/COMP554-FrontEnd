@@ -1,0 +1,33 @@
+path {
+    pointer-events: all;
+}
+path:hover {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.App{
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    margin-top: 75px;
+}
+
+.rectangle{
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 25px;
+    border: 2px solid #191970;
+}
+
+.column {
+    float: left;
+    width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
