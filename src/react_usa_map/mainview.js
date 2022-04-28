@@ -1,10 +1,10 @@
 import USAMap from "react-usa-map";
 import React, { Component } from "react";
-import {Button, Confirm, Modal, Image, Header, Segment, SegmentGroup, Label, Input,} from 'semantic-ui-react'
+import {Button, Modal} from 'semantic-ui-react'
 import "./mainview.css"
 import faker from 'faker'
 import _ from 'lodash'
-import {pad, states_map, generateColorStateMap, request_data_by_state, canpraseint} from "../util/util_func"
+import {pad, states_map, generateColorStateMap} from "../util/util_func"
 import { SegmentedControl } from 'segmented-control'
 import {
     historicalView,
@@ -15,10 +15,8 @@ import {
 } from '../util/modal_chart_util'
 import Multiselect from 'multiselect-react-dropdown';
 import { Dropdown, Menu } from 'semantic-ui-react'
-import Select from 'react-select';
 import {cleanDatafunc, searchChart} from "../util/search_chart_util";
 import {
-    simulateCasesAndTestsChart,
     simulateCasesChart,
     simulateChart, simulateMovingAverageChart,
     simulateTestsChart
@@ -109,7 +107,7 @@ export default class MainView  extends Component{
 
     requestAllData(){
         let datemap = {1: 31, 2: 28, 3:31, 4:30, 5:31, 6:30, 7: 31, 8:31, 9:30, 10:31, 11:30, 12:31};
-        let list_map = [], map_parsed = {}, a = [];
+        let map_parsed = {};
         for(let i = 1 ; i <= 12; i += 1) {
             let month = pad(i);
 
@@ -123,7 +121,7 @@ export default class MainView  extends Component{
 
                     import(`${filename}`)
                         .then(async module => {
-                            a = await fetch(module.default)
+                            await fetch(module.default)
                                 .then(rs => rs.text())
                                 .then(text => {
 
@@ -162,10 +160,10 @@ export default class MainView  extends Component{
                 let day = pad(j);
                 const filename = "./dataset/" + month + "-" + day + "-" + 2020 + ".csv";
 
-                if((i == 4 && j >= 12) || i >= 5){
+                if((i === 4 && j >= 12) || i >= 5){
                     import(`${filename}`)
                         .then(async module => {
-                            a = await fetch(module.default)
+                            await fetch(module.default)
                                 .then(rs => rs.text())
                                 .then(text => {
 
@@ -204,10 +202,10 @@ export default class MainView  extends Component{
         }
 
 
-        const filename = "./dataset/" + "TexasData.csv";
+        const filename = "./dataset/TexasData.csv";
         import(`${filename}`)
             .then(async module => {
-                a = await fetch(module.default)
+                await fetch(module.default)
                     .then(rs => rs.text())
                     .then(text => {
                         let split_info = text.split("\n");
@@ -236,10 +234,10 @@ export default class MainView  extends Component{
                     });
             })
         this.setState({data_2020_texas: this.state.data_2020_texas, data_2021_texas: this.state.data_2021_texas })
-        const filename2 = "./dataset/" + "TexasTests.csv";
+        const filename2 = "./dataset/TexasTests.csv";
         import(`${filename2}`)
             .then(async module => {
-                a = await fetch(module.default)
+                await fetch(module.default)
                     .then(rs => rs.text())
                     .then(text => {
                         let split_info = text.split("\n");
@@ -261,7 +259,7 @@ export default class MainView  extends Component{
                             }
 
                             for(let j = 1; j < row.length; j += 1) {
-                                let data = row[j], county_name = split_county[j],data_map = {};
+                                let data = row[j], county_name = split_county[j];
                                 county_map[county_name]["Total_Test_Results"] = data - '0';
                             }
 
@@ -276,15 +274,8 @@ export default class MainView  extends Component{
 
                     });
             })
-
-
-
         this.setState({data_2020_texas: this.state.data_2020_texas, data_2021_texas: this.state.data_2021_texas })
         this.setState({data_2021: this.state.data_2021, data_2020: this.state.data_2020, loading2:false});
-
-
-
-
     }
 
 
@@ -296,7 +287,7 @@ export default class MainView  extends Component{
 
         import(`${filename}`)
             .then(async module => {
-                let a = await fetch(module.default)
+                await fetch(module.default)
                     .then(rs => rs.text())
                     .then(text => {
 
@@ -327,10 +318,7 @@ export default class MainView  extends Component{
                             let full_state_name = list_map[i].Province_State;
                             if(state_full_name_to_init_map[full_state_name]){
                                 let state_name = state_full_name_to_init_map[full_state_name];
-
-                                 let cleaned_data = cleanDatafunc(JSON.parse(JSON.stringify(this.state.data_2020)),JSON.parse(JSON.stringify(this.state.data_2021)), state_name);
-
-                                let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], state_name, '2020', 0, cleaned_data[1]);
+                                let cleaned_data = cleanDatafunc(JSON.parse(JSON.stringify(this.state.data_2020)),JSON.parse(JSON.stringify(this.state.data_2021)), state_name);
                                 let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], state_name, '2021', 0, cleaned_data[1]);
                                 if(this.state.selectYear === 2021) {
                                     let result_label = result_2021[0];
@@ -385,7 +373,6 @@ export default class MainView  extends Component{
                             }
                         }
                         this.setState({select_date_data: list_map, loading:false})
-
                     });
             })
     }
@@ -404,16 +391,14 @@ export default class MainView  extends Component{
             object.id = key;
             searchOptiopnArray.push(object);
         }
-        this.state.options = [];
-        this.state.options = JSON.parse(JSON.stringify(searchOptiopnArray));
-        this.setState({options: this.state.options})
+        this.setState({options: JSON.parse(JSON.stringify(searchOptiopnArray))})
     }
 
     mapHandler = event => {
         let selectState = event.target.dataset.name, select_state_color = generateColorStateMap(this.state.select_date_data)[selectState];
-        this.state.segment_control_background.color = select_state_color.fill;
-
-        this.setState({open: true, segment_control_background: this.state.segment_control_background, select_state:selectState})
+        let _segment_control_background = this.state.segment_control_background;
+        _segment_control_background.color = select_state_color.fill;
+        this.setState({open: true, segment_control_background: _segment_control_background, select_state:selectState})
     };
 
     showTab(){
@@ -570,32 +555,28 @@ export default class MainView  extends Component{
 
 
     onSelect(selectedList, selectedItem) {
+        let _selectText = '';
         if(selectedList && selectedList.length >= 1) {
-
-            this.state.selectText = "Backspace to remove ";
+            _selectText = "Backspace to remove ";
         } else {
-            this.state.selectText = "Select...";
+            _selectText = "Select...";
         }
-        this.setState({selectText: this.state.selectText, select_day_list:[],select_state_list: selectedList})
+        this.setState({selectText: _selectText, select_day_list:[],select_state_list: selectedList})
     }
 
     onRemove(selectedList, removedItem) {
+        let _selectText = '';
         if(selectedList && selectedList.length >= 1) {
-            this.state.selectText = "Backspace to remove ";
+            _selectText = "Backspace to remove ";
         } else {
-            this.state.selectText = "Select...";
+            _selectText = "Select...";
         }
-        this.setState({selectText: this.state.selectText, select_day_list:[] ,select_state_list: selectedList})
+        this.setState({selectText: _selectText, select_day_list:[] ,select_state_list: selectedList})
     }
-
-
-
-
 
     searchChartResult(){
         return searchChart(this.state.data_2021, this.state.data_2020, this.state.select_state_list, this.state.selectYearInSearch, this.state.selecteddaily, this.state.selectedMovingAverageDaySearchView);
     }
-
 
     mainSearchView(){
         let movingAverageOption = []

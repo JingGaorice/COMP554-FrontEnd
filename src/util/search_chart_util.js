@@ -1,7 +1,7 @@
-import {canpraseint, pad, request_data_by_state, return_label_array, states_map} from "./util_func";
-import {Bar, Line} from "react-chartjs-2";
+import {canpraseint} from "./util_func";
+import {Line} from "react-chartjs-2";
 import React from "react";
-import {genertateDataAndLabel, week_list} from "./modal_chart_util";
+import {genertateDataAndLabel} from "./modal_chart_util";
 import {movingAverageHelper} from "./simulate_chart_util";
 
 export const color_list = ['rgba(255, 99, 132, 1)',
@@ -10,8 +10,6 @@ export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(75, 192, 192, 1)',
     'rgba(153, 102, 255, 1)',
     'rgba(255, 159, 64, 1)', '#FF4500', '#FF0000'];
-const state_get_full = states_map();
-
 
 export function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
@@ -22,21 +20,14 @@ export function cleanDatafunc(data2020, data2021, statename){
             if(dataState){
                 const numConfirmed = canpraseint(dataState['Confirmed']);
                 let numTests = canpraseint(dataState['Total_Test_Results']);
-                // let found = false;
                 if(!numTests){
                     numTests = canpraseint(dataState['People_Tested']);
-                    // found = true;
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
                     b = numTests;
                 } else if(numConfirmed > 0 && numTests > 0){
                     data2020[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
-                    // if(found) { // in 2020 csv, there will be either People_Tested or Total_Test_Results field name
-                    //     data2020[i - 1][j - 1][statename]['People_Tested'] = String(numTests - b);
-                    // } else {
-                    //     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
-                    // }
                     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
                     a = numConfirmed;
                     b = numTests;
@@ -83,9 +74,7 @@ function generateLabelName(statename, usewhich){
     if(usewhich){
         str = "daily";
     }
-
-
-    return statename + " CPT" + " (" + str + ")";
+    return statename + " CPT (" + str + ")";
 }
 export function searchChart(data2021, data2020, state_list, picknum = 2, usedDaily = true, movingaverage = 0){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
@@ -103,7 +92,6 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
         labels_arr = result_2021[0];
     }
     let bar_view = {
-
         labels: labels_arr,
         datasets: []
     };
@@ -121,8 +109,6 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
             tension: 0.4,
             borderWidth: 2,
             pointRadius: 0,
-
-
         })
 
         let cleaned_data = cleanDatafunc(mydata2020,mydata2021, stateinit);
@@ -139,8 +125,6 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
         } else if(picknum === 2) {
             data_arr = result_2020[1].concat(result_2021[1]);
         }
-
-
 
         for(let i = 0; i < data_arr.length; i += 1) {
             let value = data_arr[i];
@@ -197,79 +181,11 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 }
-
-
             }}
         />
     </div>);
-
 }
-
-function returnStateData(data2021, statename){
-    let data = []
-    const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
-    for(let month = 1; month <= 12; month += 1) {
-        const monthPadded = pad(month);
-        for(let day = 1; day <= datemap[month]; day += 1) {
-            const dayPadded = pad(day);
-            const stateData = data2021[month - 1][day - 1][statename];
-            if (stateData) {
-                const numConfirmed = canpraseint(stateData['Confirmed']);
-                let numTests = canpraseint(stateData['Total_Test_Results']);
-
-                if(!numTests){
-                    numTests = canpraseint(stateData['People_Tested']);
-                }
-
-                if (numConfirmed && numTests) {
-                    let result = numConfirmed / numTests;
-                    if(result >= 1) {
-                        if(data.length >= 1){
-                            result = data[data.length - 1]
-                        } else {
-                            result -= 1;
-                        }
-                    }
-                    data.push(result);
-                }
-            }
-        }
-    }
-   return data;
-}
-
-function returneachday(data2021, statename, year){
-    let data = []
-    const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
-    for(let month = 1; month <= 12; month += 1) {
-        const monthPadded = pad(month);
-        for(let day = 1; day <= datemap[month]; day += 1) {
-            const dayPadded = pad(day);
-            const stateData = data2021[month - 1][day - 1][statename];
-
-            if (stateData) {
-
-                const numConfirmed = canpraseint(stateData['Confirmed']);
-                let numTests = canpraseint(stateData['Total_Test_Results']);
-                if(!numTests){
-                    numTests = canpraseint(stateData['People_Tested']);
-                }
-                if (numConfirmed && numTests) {
-                    if(numConfirmed> 0 && numTests > 0) {
-                        data.push(`${year}-${monthPadded}-${dayPadded}`);
-                    }
-                }
-            }
-        }
-    }
-    return data;
-}
-
-
