@@ -16,21 +16,14 @@ function cleanDatafunc(data2020, data2021, statename){
             if(dataState){
                 const numConfirmed = canpraseint(dataState['Confirmed']);
                 let numTests = canpraseint(dataState['Total_Test_Results']);
-                // let found = false;
                 if(!numTests){
                     numTests = canpraseint(dataState['People_Tested']);
-                    // found = true;
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
                     b = numTests;
                 } else if(numConfirmed > 0 && numTests > 0){
                     data2020[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
-                    // if(found) { // in 2020 csv, there will be either People_Tested or Total_Test_Results field name
-                    //     data2020[i - 1][j - 1][statename]['People_Tested'] = String(numTests - b);
-                    // } else {
-                    //     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
-                    // }
                     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
                     a = numConfirmed;
                     b = numTests;
@@ -49,10 +42,8 @@ function cleanDatafunc(data2020, data2021, statename){
             if(dataState){
                 const numConfirmed = canpraseint(dataState['Confirmed']);
                 let numTests = canpraseint(dataState['Total_Test_Results']);
-                // let found = false;
                 if(!numTests){
                     numTests = canpraseint(dataState['People_Tested']);
-                    // found = true;
                 }
                 if(numConfirmed > 0 && numTests > 0){
                     data2021[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
@@ -79,17 +70,14 @@ function filterHelper(data, dayNum){
     for(let i = 0; i < data.length; i += 1) {
         let push_value = data[i], given_array = [];;
 
-
         for(let j = i; j < i + dayNum; j += 1){
             let value = data[j % (data.length)]
             if(value > 300000) {
                 while(value >= 100000){
                     value = parseInt(value / 10);
                 }
-
             }
             given_array.push(value);
-
         }
 
         given_array.sort();
@@ -107,9 +95,6 @@ function applyMedianFilter(confirm, test, dayNum = 3){
     filter_test = filterHelper(test, dayNum);
 
     return [filter_confirm, filter_test];
-
-
-
 }
 
 export function semiAnnuallyView(data2020, data2021, statename, useYear2020, semester, todaydata) {
@@ -186,19 +171,11 @@ export function semiAnnuallyView(data2020, data2021, statename, useYear2020, sem
                     A:{
                         position: 'left',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     let percentage_value = parseFloat(value) * 100;
-                            //
-                            //     return String(percentage_value.toFixed(2)) + "%"
-                            // }
                         },
                     },
                     B:{
                         position: 'right',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     return String((parseInt(value) / 100)).substring(0,3) + "K"
-                            // }
                         },
                     },
                     x: {
@@ -232,7 +209,7 @@ export function semiAnnuallyView(data2020, data2021, statename, useYear2020, sem
 export function quarterView(data2020, data2021, statename, useYear2020, quarter, todaydata){
 
 
-    let quarter_map= {
+    let quarter_map = {
         "Winter": [12, 2],
         "Spring":[3, 5],
         "Summer": [6, 8],
@@ -246,9 +223,6 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
     let cleanData = cleanDatafunc( mydata2020, mydata2021, statename);
     let data_used_in_quarter_view = useYear2020 === "2020"? JSON.parse(JSON.stringify(cleanData[0])) : JSON.parse(JSON.stringify(cleanData[1]));
-
-
-
     let result = genertateDataAndLabel(month_start, month_end, datemap, data_used_in_quarter_view, statename, useYear2020);
     label_list = result[0];
     data = result[1];
@@ -321,19 +295,11 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
                     A:{
                         position: 'left',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     let percentage_value = parseFloat(value) * 100;
-                            //
-                            //     return String(percentage_value.toFixed(2)) + "%"
-                            // }
                         },
                     },
                     B:{
                         position: 'right',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     return String((parseInt(value) / 100)).substring(0,3) + "K"
-                            // }
                         },
                     },
                     x: {
@@ -351,9 +317,7 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
                             },
-
                         }
                     }
                 },
