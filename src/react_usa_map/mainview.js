@@ -11,7 +11,7 @@ import {
     semiAnnuallyView,
     todayBarView,
     quarterView,
-    genertateDataAndLabel, nextNDays
+    generateDataAndLabel, nextNDays
 } from '../util/modal_chart_util'
 import Multiselect from 'multiselect-react-dropdown';
 import { Dropdown, Menu } from 'semantic-ui-react'
@@ -42,9 +42,14 @@ const options = [
 const option_data = [
     { text: 'Overall', value: 0 },
     { text: 'Daily', value: 1 },
-
 ]
-export default class MainView  extends Component{
+
+/**
+ * Major part of this view component contains a USA map and a modal.
+ * The USA map displays each state on the map, and each state prompts seperate modal 
+ * based on the local case statistics.
+ */
+export default class MainView extends Component{
     constructor(props) {
         super(props);
 
@@ -96,15 +101,23 @@ export default class MainView  extends Component{
 
     }
 
+    /**
+     * Lifecycle function, request data when 
+     * component is mounted.
+     */
     componentDidMount() {
-        this.requestAllData()
-
-        this.requestDataByDate()
-        this.fillSearchBarData()
+        this.requestAllData();
+        this.requestDataByDate();
+        this.fillSearchBarData();
     }
 
     /***********************functions used for map*/
 
+    /**
+     * Request data for each day. The data is stored in /dataset/MM-dd-YYYY.csv
+     * Request case data for each county on each day in Texas. The data is stored in /dataset/TexasData.csv
+     * Request test data for each county on each day in Texas. The data is stored in /dataset/TexasTests.csv
+     */
     requestAllData(){
         let datemap = {1: 31, 2: 28, 3:31, 4:30, 5:31, 6:30, 7: 31, 8:31, 9:30, 10:31, 11:30, 12:31};
         let map_parsed = {};
@@ -118,13 +131,11 @@ export default class MainView  extends Component{
                 if( i === 12 && j >= 12) {
                     break;
                 } else {
-
                     import(`${filename}`)
                         .then(async module => {
                             await fetch(module.default)
                                 .then(rs => rs.text())
                                 .then(text => {
-
                                     let info_list = text.split("\n"), day_map = {};
                                     let row_identifer = info_list[0].split(",");
                                     for(let k = 1; k < info_list.length; k += 1) {
@@ -135,7 +146,6 @@ export default class MainView  extends Component{
                                         map_parsed['Province_State'] = String(splited_data[0]);
                                         let state_name = map_parsed['Province_State'];
                                         if(state_name) {
-
                                             for(const [key, value] of Object.entries(map_get_full)){
                                                 if(state_name === value){
                                                     day_map[key] = map_parsed;
@@ -144,29 +154,21 @@ export default class MainView  extends Component{
                                             }
                                         }
                                         map_parsed = {};
-
                                     }
-
-
                                     this.state.data_2021[i - 1][j - 1] = day_map;
                                 });
                         })
-
                 }
-
-
             }
             for(let j = 1; j <= datemap[i]; j += 1) {
                 let day = pad(j);
                 const filename = "./dataset/" + month + "-" + day + "-" + 2020 + ".csv";
-
                 if((i === 4 && j >= 12) || i >= 5){
                     import(`${filename}`)
                         .then(async module => {
                             await fetch(module.default)
                                 .then(rs => rs.text())
                                 .then(text => {
-
                                     let info_list = text.split("\n"), day_map = {};
                                     let row_identifer = info_list[0].split(",");
                                     for(let k = 1; k < info_list.length; k += 1) {
@@ -177,7 +179,6 @@ export default class MainView  extends Component{
                                         map_parsed['Province_State'] = String(splited_data[0]);
                                         let state_name = map_parsed['Province_State'];
                                         if(state_name) {
-
                                             for(const [key, value] of Object.entries(map_get_full)){
                                                 if(state_name === value){
                                                     day_map[key] = map_parsed;
@@ -186,22 +187,13 @@ export default class MainView  extends Component{
                                             }
                                         }
                                         map_parsed = {};
-
                                     }
-
-
                                     this.state.data_2020[i - 1][j - 1] = day_map;
                                 });
                         })
                 }
-
-
             }
-
-
         }
-
-
         const filename = "./dataset/TexasData.csv";
         import(`${filename}`)
             .then(async module => {
@@ -229,8 +221,6 @@ export default class MainView  extends Component{
                                 this.state.data_2021_texas[month][day] = county_map;
                             }
                         }
-
-
                     });
             })
         this.setState({data_2020_texas: this.state.data_2020_texas, data_2021_texas: this.state.data_2021_texas })
@@ -263,23 +253,21 @@ export default class MainView  extends Component{
                                 county_map[county_name]["Total_Test_Results"] = data - '0';
                             }
 
-                             if(year === "20") {
-                                 this.state.data_2020_texas[month][day] = county_map;
-                             } else {
-                                 this.state.data_2021_texas[month][day] = county_map;
-                             }
-
+                            if(year === "20") {
+                                this.state.data_2020_texas[month][day] = county_map;
+                            } else {
+                                this.state.data_2021_texas[month][day] = county_map;
+                            }
                         }
-
-
                     });
             })
         this.setState({data_2020_texas: this.state.data_2020_texas, data_2021_texas: this.state.data_2021_texas })
         this.setState({data_2021: this.state.data_2021, data_2020: this.state.data_2020, loading2:false});
     }
 
-
-
+    /**
+     * Initialize data with certain selectMonth, selectDay and selectYear.
+     */
     requestDataByDate(){
         let list_map = []
 
@@ -319,7 +307,7 @@ export default class MainView  extends Component{
                             if(state_full_name_to_init_map[full_state_name]){
                                 let state_name = state_full_name_to_init_map[full_state_name];
                                 let cleaned_data = cleanDatafunc(JSON.parse(JSON.stringify(this.state.data_2020)),JSON.parse(JSON.stringify(this.state.data_2021)), state_name);
-                                let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], state_name, '2021', 0, cleaned_data[1]);
+                                let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], state_name, '2021', 0, cleaned_data[1]);
                                 if(this.state.selectYear === 2021) {
                                     let result_label = result_2021[0];
                                     let result_ratio = result_2021[1];
@@ -362,13 +350,7 @@ export default class MainView  extends Component{
                                                 }
                                             }
                                         }
-
                                     }
-
-
-
-                                } else {
-
                                 }
                             }
                         }
@@ -377,23 +359,30 @@ export default class MainView  extends Component{
             })
     }
 
+    /**
+     * Load all state names, data are specified states_map() in util_func.js
+     */
     fillSearchBarData(){
         function* entries(obj) {
             for (let key in obj)
                 yield [key, obj[key]];
         }
         const map = new Map(entries(map_get_full));
-        let searchOptiopnArray = [];
+        let searchOptionArray = [];
 
         for (let [key, value] of map){
             let object = {};
             object.name = value;
             object.id = key;
-            searchOptiopnArray.push(object);
+            searchOptionArray.push(object);
         }
-        this.setState({options: JSON.parse(JSON.stringify(searchOptiopnArray))})
+        this.setState({options: JSON.parse(JSON.stringify(searchOptionArray))})
     }
 
+    /**
+     * Handler function response to the click of specific state in the map.
+     * This opens the modal and remembers the color for the state (which indicates the level of cases).
+     */
     mapHandler = event => {
         let selectState = event.target.dataset.name, select_state_color = generateColorStateMap(this.state.select_date_data)[selectState];
         let _segment_control_background = this.state.segment_control_background;
@@ -401,11 +390,11 @@ export default class MainView  extends Component{
         this.setState({open: true, segment_control_background: _segment_control_background, select_state:selectState})
     };
 
+    /**
+     * Displays the user selected chart view component int the modal.
+     */
     showTab(){
-
         switch (this.state.tab){
-            //quarterView(data2020, data2021, statename, useYear2020, quarter)
-                //semiAnnuallyView(data2020, data2021, statename, useYear2020, semester, todaydata)
             case 2:
                 return quarterView(this.state.data_2020, this.state.data_2021,this.state.select_state, this.state.selectYearInQuarter, this.state.selectQuarterInQuarter,  this.state.select_date_data)
             case 3:
@@ -415,8 +404,11 @@ export default class MainView  extends Component{
             default:
                 return todayBarView(this.state.select_date_data, this.state.select_state)
         }
-
     }
+
+    /**
+     * Display different tabs selected by the user.
+     */
     showSelection(){
         if(this.state.tab === 2) {
             return (
@@ -464,9 +456,11 @@ export default class MainView  extends Component{
         } else {
             return null;
         }
-
     }
 
+    /**
+     * Displays the user selected main view component int the modal.
+     */
     showMainTab(){
         switch (this.state.main_tab){
             case 30:
@@ -478,6 +472,9 @@ export default class MainView  extends Component{
         }
     }
 
+    /**
+     * Decides the color for each state in the map.
+     */
     statesCustomConfig = () => {
         return generateColorStateMap(this.state.select_date_data);
     };
@@ -487,7 +484,6 @@ export default class MainView  extends Component{
             selectQuarterInQuarter: "Fall",
             selectYearInSemiannually: '2021',
             selectSemesterInSemiannually: "Fall",});
-
     }
 
     setTab(value){
@@ -495,11 +491,10 @@ export default class MainView  extends Component{
     }
 
     setMainTab(value){
-        this.setState({main_tab: value, })
-        this.setState({select_state_list:[], select_day_list:[]})
-        this.setState({selectedMovingAverageDaySimulateView: 0})
+        this.setState({main_tab: value});
+        this.setState({select_state_list:[], select_day_list:[]});
+        this.setState({selectedMovingAverageDaySimulateView: 0});
     }
-
 
     mainMapView(){
         return <div className="App" width="200">
@@ -553,7 +548,9 @@ export default class MainView  extends Component{
         </div>
     }
 
-
+    /**
+     * Function will trigger on select event of search view.
+     */
     onSelect(selectedList, selectedItem) {
         let _selectText = '';
         if(selectedList && selectedList.length >= 1) {
@@ -564,6 +561,9 @@ export default class MainView  extends Component{
         this.setState({selectText: _selectText, select_day_list:[],select_state_list: selectedList})
     }
 
+    /**
+     * Function will trigger on remove event of search view.
+     */
     onRemove(selectedList, removedItem) {
         let _selectText = '';
         if(selectedList && selectedList.length >= 1) {
@@ -574,10 +574,16 @@ export default class MainView  extends Component{
         this.setState({selectText: _selectText, select_day_list:[] ,select_state_list: selectedList})
     }
 
+    /**
+     * Funtion will return the renderred HTML of the search options specified by the user
+     */
     searchChartResult(){
         return searchChart(this.state.data_2021, this.state.data_2020, this.state.select_state_list, this.state.selectYearInSearch, this.state.selecteddaily, this.state.selectedMovingAverageDaySearchView);
     }
 
+    /**
+     * This renders the main search with the moving average specified by the user
+     */
     mainSearchView(){
         let movingAverageOption = []
         movingAverageOption.push({
@@ -596,7 +602,6 @@ export default class MainView  extends Component{
         }
         return (
             <div style={{marginLeft: "50px", marginRight: "50px"}}>
-
 
                 <Dropdown placeholder='Moving Average Days' search selection options={movingAverageOption}
                               onChange={this.handleChangeSelectMovingAverageDaySearchView.bind(this)}/>
@@ -630,39 +635,29 @@ export default class MainView  extends Component{
         );
     }
 
-
     handleChangeSelectDay = (e, {value}) => {
         this.setState({select_day_list: value})
     }
 
     handleChangeSelectState = (e, {value}) =>{
-
         this.setState({selectedStateValue: value})
     }
 
     handleChangeSelectShiftDays = (e, {value}) =>{
-
         this.setState({selectedShiftDay: value})
     }
 
     handleChangeSelectMovingAverageDaySearchView = (e, {value}) =>{
-
         this.setState({selectedMovingAverageDaySearchView: value})
-
     }
 
     handleChangeSelectMovingAverageDaySimulateView = (e, {value}) =>{
-
         this.setState({selectedMovingAverageDaySimulateView: value})
     }
 
     handleChangeSelectStateModeSimulateView = (e, {value}) =>{
-
         this.setState({ selectStatesOrTexasInSimulateView: value})
     }
-
-
-
 
     simulateChartRatioResult(){
         return simulateChart(this.returnStateOrTexas2021(), this.returnStateOrTexas2020(), this.state.select_day_list, this.state.selectedStateValue, this.state.selectedShiftDay, this.state.selectStatesOrTexasInSimulateView);
@@ -672,7 +667,6 @@ export default class MainView  extends Component{
         return simulateTestsChart(this.returnStateOrTexas2021(), this.returnStateOrTexas2020(), this.state.select_day_list, this.state.selectedStateValue, this.state.selectedShiftDay, this.state.selectStatesOrTexasInSimulateView);
     }
 
-
     simulateChartCasesResult(){
         return simulateCasesChart(this.returnStateOrTexas2021(), this.returnStateOrTexas2020(), this.state.select_day_list, this.state.selectedStateValue, this.state.selectedShiftDay, this.state.selectStatesOrTexasInSimulateView);
     }
@@ -680,14 +674,16 @@ export default class MainView  extends Component{
     simulateMovingAverageResult(){
         return simulateMovingAverageChart(this.returnStateOrTexas2021(), this.returnStateOrTexas2020(), this.state.select_day_list, this.state.selectedStateValue, this.state.selectedShiftDay, this.state.selectedMovingAverageDaySimulateView, this.state.selectStatesOrTexasInSimulateView);
     }
-
+    
+    /**
+     * Function that fetch data from user specified input to display simulate view and return rendered HTML
+     */
     simulateView(){
         let simulateOptions = [];
         simulateOptions.push({key: 0, text: "Original", value: 0});
         for(let i = 3; i <= 30; i += 1) {
             simulateOptions.push({key: i, text: i + " Days", value: i});
         }
-
 
         const addressDefinitions = faker.definitions.address
         const stateOptions = _.map(addressDefinitions.state, (state, index) => ({
@@ -704,10 +700,6 @@ export default class MainView  extends Component{
                 value: this.state.texasCountiesName[i],
             })
         }
-
-
-
-
 
         let shiftDayOptions = [], movingAverageOption = [];
         shiftDayOptions.push(
@@ -793,28 +785,22 @@ export default class MainView  extends Component{
                     <div className="column">
                         {this.simulateMovingAverageResult()}
                     </div>
-
                 </div>
                 <br/>
                 <div className="row">
                     <div className="column">
-
                         {this.simulateChartTestsResult()}
-
                     </div>
                     <div className="column">
                         {this.simulateChartCasesResult()}
-
                     </div>
-
                 </div>
-
             </div>
-
-
         );
     }
-
+    /**
+     * Retrieve data from specifed state or Texas state in 2020
+     */
     returnStateOrTexas2020(){
         if(this.state.selectStatesOrTexasInSimulateView){
             return JSON.parse(JSON.stringify(this.state.data_2020_texas));
@@ -822,17 +808,16 @@ export default class MainView  extends Component{
         return JSON.parse(JSON.stringify(this.state.data_2020));
     }
 
+    /**
+     * Retrieve data from specifed state or Texas state in 2021
+     */
     returnStateOrTexas2021(){
         if(this.state.selectStatesOrTexasInSimulateView){
             return JSON.parse(JSON.stringify(this.state.data_2021_texas));
         }
         return JSON.parse(JSON.stringify(this.state.data_2021));
     }
-    /***********************functions used for map*/
-
-
-
-
+    /*********************** functions used for map *****************************/
 
     render(){
         if(this.state.loading || this.state.loading2){
@@ -855,15 +840,7 @@ export default class MainView  extends Component{
 
                 </div>
                 {this.showMainTab()}
-                {/*<div className={"rectangle"}>*/}
-
-                {/*</div>*/}
-
             </div>
-
         );
     }
-
-
 }
-

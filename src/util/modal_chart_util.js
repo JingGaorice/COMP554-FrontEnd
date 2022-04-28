@@ -1,12 +1,15 @@
 import {Bar, Line} from 'react-chartjs-2';
 import React from "react";
-import {canpraseint, request_data_by_state, states_map} from './util_func'
+import {canparseint, request_data_by_state, states_map} from './util_func'
 import {pad } from "../util/util_func"
 
 const state_get_full = states_map();
 export const color_list = ['#ADD8E6', '#87CEEB', '#87CEFA', '#191970','#000080', '#FF7F50', '#FF6347','#FF4500', '#FF0000'];
 export const week_list = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+/**
+ * Reset data set of 2020 and 2021 for modal chart
+ */
 function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let a = 0, b = 0; // a would record the confirmed case and b would record  tests each time
@@ -14,10 +17,10 @@ function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2020[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
+                    numTests = canparseint(dataState['People_Tested']);
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
@@ -40,10 +43,10 @@ function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2021[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
+                    numTests = canparseint(dataState['People_Tested']);
                 }
                 if(numConfirmed > 0 && numTests > 0){
                     data2021[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
@@ -58,10 +61,7 @@ function cleanDatafunc(data2020, data2021, statename){
             }
         }
     }
-
     return [data2020, data2021]
-
-
 }
 
 function filterHelper(data, dayNum){
@@ -83,11 +83,12 @@ function filterHelper(data, dayNum){
         given_array.sort();
         push_value = given_array[parseInt(dayNum/2)]
         filter.push(push_value);
-
     }
     return filter;
 }
-
+/**
+ * Set up the median filter value specified by the user
+ */
 function applyMedianFilter(confirm, test, dayNum = 3){
     let filter_confirm = [], filter_test = [];
 
@@ -97,23 +98,23 @@ function applyMedianFilter(confirm, test, dayNum = 3){
     return [filter_confirm, filter_test];
 }
 
+/**
+ * Rendered the semi-annually view with user specified inputs
+ */
 export function semiAnnuallyView(data2020, data2021, statename, useYear2020, semester, todaydata) {
     let label_list = [], data = [];
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let semester_map = {"Fall": [7, 12], "Spring":[1, 6]}
     let month_start = semester_map[semester][0], month_end = semester_map[semester][1];
 
-
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
     let cleanData = cleanDatafunc( mydata2020, mydata2021, statename);
     let data_used_in_quarter_view = useYear2020 === "2020"? JSON.parse(JSON.stringify(cleanData[0])) : JSON.parse(JSON.stringify(cleanData[1]));
 
-    let result = genertateDataAndLabel(month_start, month_end, datemap, data_used_in_quarter_view, statename, useYear2020);
+    let result = generateDataAndLabel(month_start, month_end, datemap, data_used_in_quarter_view, statename, useYear2020);
     label_list = result[0];
     data = result[1];
     let testResultData = result[2];
-
-
     let mybar_view = {
 
         labels: label_list,
@@ -205,10 +206,10 @@ export function semiAnnuallyView(data2020, data2021, statename, useYear2020, sem
     </div>);
 }
 
-
+/**
+ * Return rendered HTML of quater view with user specified state
+ */
 export function quarterView(data2020, data2021, statename, useYear2020, quarter, todaydata){
-
-
     let quarter_map = {
         "Winter": [12, 2],
         "Spring":[3, 5],
@@ -223,20 +224,18 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
     let cleanData = cleanDatafunc( mydata2020, mydata2021, statename);
     let data_used_in_quarter_view = useYear2020 === "2020"? JSON.parse(JSON.stringify(cleanData[0])) : JSON.parse(JSON.stringify(cleanData[1]));
-    let result = genertateDataAndLabel(month_start, month_end, datemap, data_used_in_quarter_view, statename, useYear2020);
+    let result = generateDataAndLabel(month_start, month_end, datemap, data_used_in_quarter_view, statename, useYear2020);
     label_list = result[0];
     data = result[1];
     let testResultData = result[2];
     if(useYear2020 === "2021" && quarter === "Winter") {
-        let dec_result = genertateDataAndLabel(12, 12, datemap, JSON.parse(JSON.stringify(cleanData[0])), statename, "2020");
-        let month_result = genertateDataAndLabel(1, 2, datemap, JSON.parse(JSON.stringify(cleanData[1])), statename, "2021");
+        let dec_result = generateDataAndLabel(12, 12, datemap, JSON.parse(JSON.stringify(cleanData[0])), statename, "2020");
+        let month_result = generateDataAndLabel(1, 2, datemap, JSON.parse(JSON.stringify(cleanData[1])), statename, "2021");
 
         label_list = dec_result[0].concat(month_result[0]);
         data = dec_result[1].concat(month_result[1]);
         testResultData = dec_result[2].concat(month_result[2]);
     }
-
-
 
     let bar_view = {
 
@@ -326,7 +325,9 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
     </div>);
 }
 
-
+/**
+ * Return rendered HTML of today view with user specified state
+ */
 export function todayBarView(select_data, statename){
     let bar_view = {
 
@@ -344,7 +345,7 @@ export function todayBarView(select_data, statename){
     };
     let state_data_row = request_data_by_state(select_data, states_map()[statename]);
     if(state_data_row){
-        let confirmed = canpraseint(state_data_row['Confirmed']),  total_test_result = canpraseint(state_data_row['Total_Test_Results']);
+        let confirmed = canparseint(state_data_row['Confirmed']),  total_test_result = canparseint(state_data_row['Total_Test_Results']);
         if(confirmed && total_test_result) {
             let confirm_rate = parseFloat(confirmed/total_test_result);
             if(state_data_row["ratio"]){
@@ -380,13 +381,17 @@ export function todayBarView(select_data, statename){
     </div>);
 }
 
+
+/**
+ * Return rendered HTML of historical view with user specified data
+ */
 export function historicalView(data2020, data2021, statename, todaydata) {
     let data = [], label_list = [], testResultData = [];
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
     let cleanData = cleanDatafunc( mydata2020, mydata2021, statename);
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,cleanData[0], statename, '2020');
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,cleanData[1], statename, '2021');
+    let result_2020 = generateDataAndLabel(4, 12, datemap,cleanData[0], statename, '2020');
+    let result_2021 = generateDataAndLabel(1, 12, datemap,cleanData[1], statename, '2021');
     label_list = result_2020[0].concat(result_2021[0]);
     data = result_2020[1].concat(result_2021[1]);
     testResultData = result_2020[2].concat(result_2021[2]);
@@ -452,19 +457,11 @@ export function historicalView(data2020, data2021, statename, todaydata) {
                     A:{
                         position: 'left',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     let percentage_value = parseFloat(value) * 100;
-                            //
-                            //     return String(percentage_value.toFixed(2)) + "%"
-                            // }
                         },
                     },
                     B:{
                         position: 'right',
                         ticks: {
-                            // callback: function(value, index, values) {
-                            //     return String((parseInt(value) / 100)).substring(0,3) + "K"
-                            // }
                         },
                     },
                     x: {
@@ -483,10 +480,7 @@ export function historicalView(data2020, data2021, statename, todaydata) {
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 },
@@ -497,10 +491,9 @@ export function historicalView(data2020, data2021, statename, todaydata) {
 
 function returnBorderColor(todaydata, statename){
     let state_data_row = request_data_by_state( todaydata, states_map()[statename]);
-    let confirmed = canpraseint(state_data_row['Confirmed']),  total_test_result = canpraseint(state_data_row['Total_Test_Results']);
+    let confirmed = canparseint(state_data_row['Confirmed']),  total_test_result = canparseint(state_data_row['Total_Test_Results']);
     let confirm_rate = parseFloat(confirmed/total_test_result);
     if(state_data_row["ratio"]){
-
         confirm_rate = state_data_row["ratio"];
     }
     let percentage_confirm_rate = confirm_rate * 100;
@@ -523,15 +516,16 @@ export function nextNDays(year, month, day, n, datemap) {
     return {year, month, day};
 }
 
-
-export function genertateDataAndLabel(month_start, month_end, datemap, data_used, statename, useYear2020, shiftDay = 0, otherData = ""){
+/**
+ * Set up data and label in other components
+ */
+export function generateDataAndLabel(month_start, month_end, datemap, data_used, statename, useYear2020, shiftDay = 0, otherData = ""){
     let data = [], label_list = [], num_confirmed_list = [], number_tests_list = [];
-    const year = canpraseint(useYear2020);
+    const year = canparseint(useYear2020);
     for(let i = month_start; i <= month_end; i += 1){
         let monthPadded = pad(i);
         for(let j = 1; j < datemap[i]; j += 1) {
             const stateData = data_used[i - 1][j - 1][statename];
-
             const dateThreeDaysAfter = nextNDays(year, i, j, shiftDay, datemap);
             const stateDataThreeDaysAfter = year === dateThreeDaysAfter.year ?
                 data_used[dateThreeDaysAfter.month - 1][dateThreeDaysAfter.day - 1][statename] :
@@ -543,11 +537,11 @@ export function genertateDataAndLabel(month_start, month_end, datemap, data_used
 
             let dayPadded = pad(j);
             if(stateData) {
-                const numConfirmed = canpraseint(stateDataThreeDaysAfter['Confirmed']);
+                const numConfirmed = canparseint(stateDataThreeDaysAfter['Confirmed']);
 
-                let numTests = canpraseint(stateData['Total_Test_Results']);
+                let numTests = canparseint(stateData['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(stateData['People_Tested']);
+                    numTests = canparseint(stateData['People_Tested']);
                 }
                 if (numConfirmed && numTests) {
                     if(numConfirmed> 0 && numTests > 0) {
@@ -556,7 +550,6 @@ export function genertateDataAndLabel(month_start, month_end, datemap, data_used
                         number_tests_list.push(numTests);
                         label_list.push(`${useYear2020}-${monthPadded}-${dayPadded}`)
                     }
-
                 }
             }
         }

@@ -1,7 +1,7 @@
-import {canpraseint} from "./util_func";
+import {canparseint} from "./util_func";
 import {Line} from "react-chartjs-2";
 import React from "react";
-import {genertateDataAndLabel} from "./modal_chart_util";
+import {generateDataAndLabel} from "./modal_chart_util";
 
 export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(54, 162, 235, 1)',
@@ -10,6 +10,9 @@ export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(153, 102, 255, 1)',
     'rgba(255, 159, 64, 1)', '#FF4500', '#FF0000'];
 
+/**
+ * Reset data set of 2020 and 2021 for modal chart
+ */
 function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let a = 0, b = 0; // a would record the confirmed case and b would record tests each time
@@ -17,10 +20,10 @@ function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2020[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
+                    numTests = canparseint(dataState['People_Tested']);
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
@@ -43,11 +46,11 @@ function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2021[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 // let found = false;
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
+                    numTests = canparseint(dataState['People_Tested']);
                     // found = true;
                 }
                 if(numConfirmed > 0 && numTests > 0){
@@ -66,6 +69,9 @@ function cleanDatafunc(data2020, data2021, statename){
     return [data2020, data2021]
 }
 
+/**
+ * Helper function for median filter.
+ */
 function filterHelper(data, dayNum, ratio = false){
     let filter = [];
     if(dayNum === 0) {
@@ -111,6 +117,9 @@ function filterHelper(data, dayNum, ratio = false){
     return filter;
 }
 
+/**
+ * Helper function for moving average.
+ */
 export function movingAverageHelper(data, dayNum, ratio = false){
     let filter = [];
     if(dayNum === 0) {
@@ -169,6 +178,9 @@ function getLabel(dayNum, label) {
     }
 }
 
+/**
+ * This view component displays Historical Cases Per Test (Number of Confirmed Cases / Number of Tests) with median filter.
+ */
 export function simulateChart(data2021, data2020, day_list, stateName, shiftDay, countyMode = false){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
@@ -176,8 +188,8 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
     if(countyMode){
         cleaned_data = [data2020, data2021]
     }
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
+    let result_2020 = generateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
+    let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
     let labels_arr = result_2020[0].concat(result_2021[0]);
     let data_arr = result_2020[1].concat(result_2021[1]);
 
@@ -266,8 +278,9 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
 
 }
 
-
-
+/**
+ * This view component displays Historical number of confirmed cases days with median filter.
+ */
 export function simulateCasesChart(data2021, data2020, day_list, stateName, shiftDay, countyMode = false){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
@@ -275,8 +288,8 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
     if(countyMode){
         cleaned_data = [data2020, data2021]
     }
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
+    let result_2020 = generateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
+    let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
     let labels_arr = result_2020[0].concat(result_2021[0]);
     let data_arr = result_2020[2].concat(result_2021[2]);
 
@@ -362,6 +375,9 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
 
 }
 
+/**
+ * This view component displays Historical number of tests days with median filter.
+ */
 export function simulateTestsChart(data2021, data2020, day_list, stateName, shiftDay, countyMode = false){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
@@ -369,8 +385,8 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
     if(countyMode){
         cleaned_data = [data2020, data2021]
     }
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', 0, cleaned_data[1]);
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', 0, cleaned_data[1]);
+    let result_2020 = generateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', 0, cleaned_data[1]);
+    let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', 0, cleaned_data[1]);
     let labels_arr = result_2020[0].concat(result_2021[0]);
     let data_arr = result_2020[3].concat(result_2021[3]);
 
@@ -454,6 +470,9 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
 
 }
 
+/**
+ * This view component displays Historical Cases Per Test days with median filter and moving average.
+ */
 export function simulateMovingAverageChart(data2021, data2020, day_list, stateName, shiftDay, movingAverageDay, countyMode = false){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
@@ -461,8 +480,8 @@ export function simulateMovingAverageChart(data2021, data2020, day_list, stateNa
     if(countyMode){
         cleaned_data = [data2020, data2021]
     }
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
+    let result_2020 = generateDataAndLabel(4, 12, datemap,cleaned_data[0], stateName, '2020', shiftDay, cleaned_data[1]);
+    let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], stateName, '2021', shiftDay, cleaned_data[1]);
     let labels_arr = result_2020[0].concat(result_2021[0]);
     let data_arr = result_2020[1].concat(result_2021[1]);
 

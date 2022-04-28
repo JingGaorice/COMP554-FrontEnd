@@ -1,7 +1,7 @@
-import {canpraseint} from "./util_func";
+import {canparseint} from "./util_func";
 import {Line} from "react-chartjs-2";
 import React from "react";
-import {genertateDataAndLabel} from "./modal_chart_util";
+import {generateDataAndLabel} from "./modal_chart_util";
 import {movingAverageHelper} from "./simulate_chart_util";
 
 export const color_list = ['rgba(255, 99, 132, 1)',
@@ -11,6 +11,9 @@ export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(153, 102, 255, 1)',
     'rgba(255, 159, 64, 1)', '#FF4500', '#FF0000'];
 
+/**
+ * Reset data set of 2020 and 2021 for modal chart
+ */
 export function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let a = 0, b = 0; // a would record the confirmed case and b would record  tests each time
@@ -18,10 +21,10 @@ export function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2020[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
+                    numTests = canparseint(dataState['People_Tested']);
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
@@ -44,12 +47,10 @@ export function cleanDatafunc(data2020, data2021, statename){
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2021[i - 1][j - 1][statename];
             if(dataState){
-                const numConfirmed = canpraseint(dataState['Confirmed']);
-                let numTests = canpraseint(dataState['Total_Test_Results']);
-                // let found = false;
+                const numConfirmed = canparseint(dataState['Confirmed']);
+                let numTests = canparseint(dataState['Total_Test_Results']);
                 if(!numTests){
-                    numTests = canpraseint(dataState['People_Tested']);
-                    // found = true;
+                    numTests = canparseint(dataState['People_Tested']);
                 }
                 if(numConfirmed > 0 && numTests > 0){
                     data2021[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
@@ -66,8 +67,6 @@ export function cleanDatafunc(data2020, data2021, statename){
     }
 
     return [data2020, data2021]
-
-
 }
 function generateLabelName(statename, usewhich){
     let str = "cumulated";
@@ -76,6 +75,21 @@ function generateLabelName(statename, usewhich){
     }
     return statename + " CPT (" + str + ")";
 }
+
+/**
+ * This view component is the line chart in search view in the main page.
+ * This line chart displays the Historical Cases Per Test 
+ * (Number of Confirmed Cases / Number of Tests) for selected states. 
+ * Sample rate, data source, moving average days and states can be specified by user.
+ * 
+ * @param {*} data2021 the corresponding data in 2021
+ * @param {*} data2020 the corresponding data in 2020
+ * @param {*} state_list the displayed state in the chart
+ * @param {*} picknum the chart picks 2020 or 2021 or both year data
+ * @param {*} usedDaily the chart is based on daily / overall data
+ * @param {*} movingaverage the days option of moving average
+ * @returns 
+ */
 export function searchChart(data2021, data2020, state_list, picknum = 2, usedDaily = true, movingaverage = 0){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
     let mydata2020 = JSON.parse(JSON.stringify(data2020)), mydata2021 = JSON.parse(JSON.stringify(data2021));
@@ -83,8 +97,8 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
     if(usedDaily === false){
         my_cleaned_data = [data2020, data2021]
     }
-    let result_2020 = genertateDataAndLabel(4, 12, datemap,my_cleaned_data[0], 'CA', '2020', 0, my_cleaned_data[1]);
-    let result_2021 = genertateDataAndLabel(1, 12, datemap,my_cleaned_data[1], 'CA', '2021', 0, my_cleaned_data[1]);
+    let result_2020 = generateDataAndLabel(4, 12, datemap,my_cleaned_data[0], 'CA', '2020', 0, my_cleaned_data[1]);
+    let result_2021 = generateDataAndLabel(1, 12, datemap,my_cleaned_data[1], 'CA', '2021', 0, my_cleaned_data[1]);
     let labels_arr = result_2020[0].concat(result_2021[0]);
     if(picknum === 0) {
         labels_arr = result_2020[0];
@@ -116,8 +130,8 @@ export function searchChart(data2021, data2020, state_list, picknum = 2, usedDai
             cleaned_data = [data2020, data2021]
         }
         const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
-        let result_2020 = genertateDataAndLabel(4, 12, datemap,cleaned_data[0], stateinit, '2020', 0, cleaned_data[1]);
-        let result_2021 = genertateDataAndLabel(1, 12, datemap,cleaned_data[1], stateinit, '2021', 0, cleaned_data[1]);
+        let result_2020 = generateDataAndLabel(4, 12, datemap,cleaned_data[0], stateinit, '2020', 0, cleaned_data[1]);
+        let result_2021 = generateDataAndLabel(1, 12, datemap,cleaned_data[1], stateinit, '2021', 0, cleaned_data[1]);
 
         let data_arr = result_2020[1];
         if(picknum === 1) {

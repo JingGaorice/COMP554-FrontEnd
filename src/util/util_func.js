@@ -11,7 +11,7 @@ export function request_data_by_state(list, state){
     return [];
 }
 
-export function canpraseint(str_num){
+export function canparseint(str_num){
     if(isNaN(parseInt(str_num))){
         return 0;
     } else {
@@ -19,6 +19,10 @@ export function canpraseint(str_num){
     }
 }
 
+/**
+ * Generate state color map, which specifies the color for each state in the USA map in the main view.
+ * The color is based on the calculation of confirm rate. [confirmed_cases / total_test_results]
+ */
 export function generateColorStateMap(select_date_data){
     let color_list = ['#ADD8E6', '#87CEEB', '#87CEFA', '#191970','#000080', '#FF7F50', '#FF6347','#FF4500', '#FF0000'];
     let color_states = {};
@@ -28,7 +32,7 @@ export function generateColorStateMap(select_date_data){
         let state_data_row = request_data_by_state(select_date_data, value);
 
         if(state_data_row){
-            let confirmed = canpraseint(state_data_row['Confirmed']),  total_test_result = canpraseint(state_data_row['Total_Test_Results']);
+            let confirmed = canparseint(state_data_row['Confirmed']),  total_test_result = canparseint(state_data_row['Total_Test_Results']);
             if(confirmed && total_test_result) {
 
                 let confirm_rate = parseFloat(confirmed/total_test_result);
