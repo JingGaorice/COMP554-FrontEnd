@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+# Project Introduction:
+This is a project that provides information about the test rate and positive rate of COVID-19 in the United States. There are two different ways to view the data provided. Map view allows the user to click on different states for the today, quarterly, semi-annually, and historical data of the test results. Search view provides line charts for states selected by the user, and the user is able to select the timestamp to display the data of positive cases / total tests. Data from multiple states with specified timestamp can be displayed on the same chart with different colors for comparison. Simulate view provides a comparison between simulated data and actual data with a specified median filter. There are four different charts provided, historical positive rates (positive cases / total tests) median filter, historical positive rates and moving average, historical number of tests median filter, and historical positive cases median filter. Meanwhile, visualization of specific counties in Texas is supported.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# Get started
+```
+$ npm install
+$ npm run start
+```
 
-In the project directory, you can run:
 
-### `yarn start`
+# Website Link
+http://comp590-ft-countryview.surge.sh/
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# Important Components & Functions:
 
-### `yarn test`
+## Main Component:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Major part of this view component contains a USA map and a modal.
 
-### `yarn build`
+The USA map displays each state on the map, and each state prompts seperate modal 
+based on the local case statistics.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Map View:
+The USA map displays each state on the map.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Search View:
+This view component is the line chart in search view in the main page.
 
-### `yarn eject`
+This line chart displays the Historical Cases Per Test (Number of Confirmed Cases / Number of Tests) for selected states. 
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Sample rate, data source, moving average days and states can be specified by user.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Simulate View:
+There are four major charts in this view.
+1. Displays Historical Cases Per Test (Number of Confirmed Cases / Number of Tests) with median filter.
+2. Displays Historical number of confirmed cases days with median filter.
+3. Displays Historical number of tests days with median filter.
+4. Displays Historical Cases Per Test days with median filter and moving average.
