@@ -1,17 +1,11 @@
-import {Bar, Chart, Line} from 'react-chartjs-2';
-import React, { Component } from "react";
+import {Bar, Line} from 'react-chartjs-2';
+import React from "react";
 import {canpraseint, request_data_by_state, states_map} from './util_func'
 import {pad } from "../util/util_func"
 
 const state_get_full = states_map();
 export const color_list = ['#ADD8E6', '#87CEEB', '#87CEFA', '#191970','#000080', '#FF7F50', '#FF6347','#FF4500', '#FF0000'];
 export const week_list = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const background_color_list = ['rgba(255, 99, 132, 1)',
-    'rgba(54, 162, 235, 1)',
-    'rgba(255, 206, 86, 1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 159, 64, 1)',];
 
 function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
@@ -259,7 +253,7 @@ export function quarterView(data2020, data2021, statename, useYear2020, quarter,
     label_list = result[0];
     data = result[1];
     let testResultData = result[2];
-    if(useYear2020 == "2021" && quarter === "Winter") {
+    if(useYear2020 === "2021" && quarter === "Winter") {
         let dec_result = genertateDataAndLabel(12, 12, datemap, JSON.parse(JSON.stringify(cleanData[0])), statename, "2020");
         let month_result = genertateDataAndLabel(1, 2, datemap, JSON.parse(JSON.stringify(cleanData[1])), statename, "2021");
 

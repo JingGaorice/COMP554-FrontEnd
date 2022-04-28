@@ -1,4 +1,4 @@
-import {Button, Confirm, Modal, Image, Header, Segment, SegmentGroup} from 'semantic-ui-react'
+import {Button, Modal, Image, Header} from 'semantic-ui-react'
 import React, { Component } from "react";
 
 export class MyModal extends Component{

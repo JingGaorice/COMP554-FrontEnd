@@ -1,8 +1,7 @@
-import {canpraseint, pad, request_data_by_state, states_map } from "./util_func";
-import {Bar, Line} from "react-chartjs-2";
+import {canpraseint} from "./util_func";
+import {Line} from "react-chartjs-2";
 import React from "react";
-import {genertateDataAndLabel, week_list} from "./modal_chart_util";
-import {Button, Popup} from "semantic-ui-react";
+import {genertateDataAndLabel} from "./modal_chart_util";
 
 export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(54, 162, 235, 1)',
@@ -10,33 +9,24 @@ export const color_list = ['rgba(255, 99, 132, 1)',
     'rgba(75, 192, 192, 1)',
     'rgba(153, 102, 255, 1)',
     'rgba(255, 159, 64, 1)', '#FF4500', '#FF0000'];
-const state_get_full = states_map();
-
 
 function cleanDatafunc(data2020, data2021, statename){
     const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
-    let a = 0, b = 0; // a would record the confirmed case and b would record  tests each time
+    let a = 0, b = 0; // a would record the confirmed case and b would record tests each time
     for(let i = 1; i <= 12; i += 1) {
         for(let j = 1; j <= datemap[i]; j += 1) {
             let dataState = data2020[i - 1][j - 1][statename];
             if(dataState){
                 const numConfirmed = canpraseint(dataState['Confirmed']);
                 let numTests = canpraseint(dataState['Total_Test_Results']);
-                // let found = false;
                 if(!numTests){
                     numTests = canpraseint(dataState['People_Tested']);
-                    // found = true;
                 }
                 if(a === 0 && b === 0 && numConfirmed && numTests){
                     a = numConfirmed;
                     b = numTests;
                 } else if(numConfirmed > 0 && numTests > 0){
                     data2020[i - 1][j - 1][statename]['Confirmed'] = String(numConfirmed - a);
-                    // if(found) { // in 2020 csv, there will be either People_Tested or Total_Test_Results field name
-                    //     data2020[i - 1][j - 1][statename]['People_Tested'] = String(numTests - b);
-                    // } else {
-                    //     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
-                    // }
                     data2020[i - 1][j - 1][statename]['Total_Test_Results'] = String(numTests - b);
                     a = numConfirmed;
                     b = numTests;
@@ -73,10 +63,7 @@ function cleanDatafunc(data2020, data2021, statename){
             }
         }
     }
-
     return [data2020, data2021]
-
-
 }
 
 function filterHelper(data, dayNum, ratio = false){
@@ -95,14 +82,12 @@ function filterHelper(data, dayNum, ratio = false){
                 }
             }
             filter.push(value);
-
         }
         return filter;
     }
 
     for(let i = 0; i < data.length; i += 1) {
-        let push_value = data[i], given_array = [];;
-
+        let push_value = data[i], given_array = [];
 
         for(let j = i; j < i + dayNum; j += 1){
             let value = data[j % (data.length)]
@@ -115,17 +100,13 @@ function filterHelper(data, dayNum, ratio = false){
                 while(value >= 1){
                     value = parseFloat(value / 2.5);
                 }
-
-
             }
             given_array.push(value);
-
         }
 
         given_array.sort();
         push_value = given_array[parseInt(dayNum/2)]
         filter.push(push_value);
-
     }
     return filter;
 }
@@ -133,7 +114,6 @@ function filterHelper(data, dayNum, ratio = false){
 export function movingAverageHelper(data, dayNum, ratio = false){
     let filter = [];
     if(dayNum === 0) {
-
         for(let i = 0; i < data.length; i += 1) {
             let value = data[i];
             while(value >= 100000){
@@ -143,21 +123,16 @@ export function movingAverageHelper(data, dayNum, ratio = false){
                 while(value >= 1){
                     value = parseFloat(value / 2.5);
                 }
-
-
             }
             filter.push(value);
-
         }
-
         return [filter];
     }
+
     for(let i = 1; i < data.length; i += 1) {
         let push_value = data[i], given_array = [];
         for(let j = i - 1; j < i - 1 + dayNum; j += 1){
-
             let value = data[j % (data.length)]
-
             while(value >= 1000000){
                 value = parseInt(value / 10);
             }
@@ -165,11 +140,7 @@ export function movingAverageHelper(data, dayNum, ratio = false){
                 while(value >= 1){
                     value = parseFloat(value / 2.5);
                 }
-
-
             }
-
-
             given_array.push(value);
         }
         let sum = given_array.reduce(function(acc, val) { return acc + val; }, 0);
@@ -177,7 +148,6 @@ export function movingAverageHelper(data, dayNum, ratio = false){
             push_value = sum / dayNum;
         }
         filter.push(push_value);
-
     }
     return [filter];
 }
@@ -189,9 +159,6 @@ function applyMedianFilter(confirm, test, dayNum = 3, ratio = false){
     filter_test = filterHelper(test, dayNum, ratio);
 
     return [filter_confirm, filter_test];
-
-
-
 }
 
 function getLabel(dayNum, label) {
@@ -215,7 +182,6 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
     let data_arr = result_2020[1].concat(result_2021[1]);
 
     let bar_view = {
-
         labels: labels_arr,
         datasets: []
     };
@@ -233,8 +199,6 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
             borderWidth: 2,
             pointRadius: 0,
             data: [],
-
-
         })
         let data_filter = applyMedianFilter(data_arr, [], day, true);
         bar_view.datasets[i].data = data_filter[0];
@@ -245,7 +209,7 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
     let month_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
     //Historical Cases Per Test (Number of Confirmed Cases / Number of Tests)
     return (<div>
-        <div className="ui large label">Historical CPT days median Filter</div>
+        <div className="ui large label">Historical CPT days median filter</div>
         <div className="ui button" data-tooltip="CPT stands for Cases Per Test (Number of Confirmed Cases / Number of Tests) " data-position="top left">
             ?
         </div>
@@ -292,10 +256,7 @@ export function simulateChart(data2021, data2020, day_list, stateName, shiftDay,
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 }
@@ -320,7 +281,6 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
     let data_arr = result_2020[2].concat(result_2021[2]);
 
     let bar_view = {
-
         labels: labels_arr,
         datasets: []
     };
@@ -338,8 +298,6 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
             borderWidth: 2,
             pointRadius: 0,
             data: [],
-
-
         })
         let data_filter = applyMedianFilter(data_arr, [], day);
         bar_view.datasets[i].data = data_filter[0];
@@ -376,9 +334,7 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
                         ticks: {
                             // For a category axis, the val is the index so the lookup via getLabelForValue is needed
                             callback: function(val, index, ticks) {
-
                                 let label = this.getLabelForValue(val);
-
                                 let split_array = label.split("-");
                                 let year = split_array[0], month = parseInt(split_array[1]) - 1;
                                 if(!x_axis_container[year + month]){
@@ -396,10 +352,7 @@ export function simulateCasesChart(data2021, data2020, day_list, stateName, shif
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 }
@@ -422,11 +375,9 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
     let data_arr = result_2020[3].concat(result_2021[3]);
 
     let bar_view = {
-
         labels: labels_arr,
         datasets: []
     };
-
 
     for(let i = 0; i < day_list.length; i += 1) {
         let day = day_list[i];
@@ -440,13 +391,9 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
             borderWidth: 2,
             pointRadius: 0,
             data: [],
-
-
         })
         let data_filter = applyMedianFilter(data_arr, [], day);
         bar_view.datasets[i].data = data_filter[0];
-
-
     }
 
 
@@ -458,7 +405,6 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
         <Line
             data={bar_view}
             options={{
-
                 title:{
                     display:true,
                     text:'Today\'s Confirm Rate',
@@ -498,10 +444,7 @@ export function simulateTestsChart(data2021, data2020, day_list, stateName, shif
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 }
@@ -529,18 +472,10 @@ export function simulateMovingAverageChart(data2021, data2020, day_list, stateNa
         datasets: []
     };
 
-    let day_string = String(movingAverageDay);
-
-    if(movingAverageDay === 0) {
-        day_string += " day";
-    } else {
-        day_string += " days"
-    }
-
     for(let i = 0; i < day_list.length; i += 1) {
         let day = day_list[i];
         bar_view.datasets.push({
-            label: getLabel(day , " days median filter and " + movingAverageDay + " day(s) " +"moving average"),
+            label: getLabel(day , " days median filter and " + movingAverageDay + " day(s) moving average"),
             backgroundColor: color_list[i % color_list.length],
             borderColor: color_list[i % color_list.length],
             cubicInterpolationMode: 'monotone',
@@ -549,15 +484,11 @@ export function simulateMovingAverageChart(data2021, data2020, day_list, stateNa
             borderWidth: 2,
             pointRadius: 0,
             data: [],
-
-
         })
         let data_filter = JSON.parse(JSON.stringify(applyMedianFilter(data_arr, [], day)));
         let movingAverage = movingAverageHelper(data_filter[0], movingAverageDay, true)
         bar_view.datasets[i].data = movingAverage[0];
-
     }
-
 
     let x_axis_container = {};
     let month_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
@@ -591,9 +522,7 @@ export function simulateMovingAverageChart(data2021, data2020, day_list, stateNa
                         ticks: {
                             // For a category axis, the val is the index so the lookup via getLabelForValue is needed
                             callback: function(val, index, ticks) {
-
                                 let label = this.getLabelForValue(val);
-
                                 let split_array = label.split("-");
                                 let year = split_array[0], month = parseInt(split_array[1]) - 1;
                                 if(!x_axis_container[year + month]){
@@ -611,43 +540,11 @@ export function simulateMovingAverageChart(data2021, data2020, day_list, stateNa
                                 if(index === ticks.length - 1) {
                                     x_axis_container = {};
                                 }
-
-
                             },
-
                         }
                     }
                 }
             }}
         />
     </div>);
-
 }
-
-function returneachday(data2021, statename, year){
-    let data = []
-    const datemap = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31};
-    for(let month = 1; month <= 12; month += 1) {
-        const monthPadded = pad(month);
-        for(let day = 1; day <= datemap[month]; day += 1) {
-            const dayPadded = pad(day);
-            const stateData = data2021[month - 1][day - 1][statename];
-
-            if (stateData) {
-
-                const numConfirmed = canpraseint(stateData['Confirmed']);
-                let numTests = canpraseint(stateData['Total_Test_Results']);
-                if(!numTests){
-                    numTests = canpraseint(stateData['People_Tested']);
-                }
-                if (numConfirmed && numTests) {
-
-                    data.push(`${year}-${monthPadded}-${dayPadded}`);
-                }
-            }
-        }
-    }
-    return data;
-}
-
-
