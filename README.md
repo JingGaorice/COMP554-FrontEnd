@@ -13,6 +13,53 @@ $ npm run start
 http://comp590-ft-countryview.surge.sh/
 
 
+# Reproducibility
+This project is deployed with Surge.
+For deploying, follow the following steps:
+```
+$ npm run build
+$ cd build
+$ cp index.html 200.html   
+$ surge
+> Running as xxx@rice.edu (Student)
+> project: /Users/xxx/COMP554-FrontEnd/
+> domain: [target-deploy-domain].surge.sh
+> upload: [====================] 100% eta: 0.0s (1880 files, 20048087 bytes)
+> CDN: [====================] 100%
+> encryption: *.surge.sh, surge.sh (384 days)
+> IP: 138.197.xxx.xxx
+> Success! - [target-deploy-domain].surge.sh
+```
+
+You should input target-deploy-domain as your desired domain for deploy.
+
+
+# Project Structure:
+```
+src
+├── App.css
+├── App.js
+├── ...
+├── react_usa_map
+│   ├── TexasData.csv
+│   ├── TexasTests.csv
+│   ├── dataset
+│   │   ├── MM-dd-YYYY.csv
+│   │   ├── README.md
+│   │   ├── TexasData.csv
+│   │   └── TexasTests.csv
+│   ├── mainview.css
+│   └── mainview.js
+├── reportWebVitals.js
+├── setupTests.js
+└── util
+    ├── modal_chart_util.js
+    ├── search_chart_util.js
+    ├── simulate_chart_util.js
+    └── util_func.js
+```
+
+
 # Important Components & Functions:
 
 ## Main Component:
