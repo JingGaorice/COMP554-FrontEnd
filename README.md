@@ -2,6 +2,10 @@
 This is a project that provides information about the test rate and positive rate of COVID-19 in the United States. There are two different ways to view the data provided. Map view allows the user to click on different states for the today, quarterly, semi-annually, and historical data of the test results. Search view provides line charts for states selected by the user, and the user is able to select the timestamp to display the data of positive cases / total tests. Data from multiple states with specified timestamp can be displayed on the same chart with different colors for comparison. Simulate view provides a comparison between simulated data and actual data with a specified median filter. There are four different charts provided, historical positive rates (positive cases / total tests) median filter, historical positive rates and moving average, historical number of tests median filter, and historical positive cases median filter. Meanwhile, visualization of specific counties in Texas is supported.
 
 
+# Project Demo:
+![](https://s2.loli.net/2022/04/30/dG72gejkBrXCEtK.gif)
+
+
 # Get started
 ```
 $ npm install
