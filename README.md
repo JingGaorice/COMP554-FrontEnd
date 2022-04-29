@@ -87,3 +87,10 @@ There are four major charts in this view.
 2. Displays Historical number of confirmed cases days with median filter.
 3. Displays Historical number of tests days with median filter.
 4. Displays Historical Cases Per Test days with median filter and moving average.
+
+
+
+# Dependencies:
+1. [React.JS](https://reactjs.org/)
+2. [Chart.JS](https://www.chartjs.org/)
+3. [faker-js](https://fakerjs.dev/)
